@@ -1,0 +1,9 @@
+/* Stili minimali - gli ulteriori stili verranno aggiunti dopo */
+:host {
+  display: block;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
