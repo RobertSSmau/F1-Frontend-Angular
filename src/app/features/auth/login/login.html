@@ -7,6 +7,12 @@
     </div>
   }
 
+  @if (sessionError()) {
+    <div style="color: orange; margin-bottom: 10px; padding: 10px; background: #fff3cd;">
+      {{ sessionError() }}
+    </div>
+  }
+
   <form (ngSubmit)="onLogin()">
     <div style="margin-bottom: 15px;">
       <label for="username">Username:</label>

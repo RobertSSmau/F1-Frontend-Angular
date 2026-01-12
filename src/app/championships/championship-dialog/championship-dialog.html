@@ -1,0 +1,31 @@
+<h2 mat-dialog-title>{{ data ? 'Edit Championship' : 'Create Championship' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="championshipForm">
+    <mat-form-field>
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" required>
+      @if (championshipForm.get('name')?.invalid && championshipForm.get('name')?.touched) {
+        <mat-error>Name is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Year</mat-label>
+      <input matInput type="number" formControlName="year" required>
+      @if (championshipForm.get('year')?.invalid && championshipForm.get('year')?.touched) {
+        <mat-error>Valid year is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Winner ID (optional)</mat-label>
+      <input matInput formControlName="winnerId">
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSave()" [disabled]="championshipForm.invalid">
+    {{ data ? 'Update' : 'Create' }}
+  </button>
+</mat-dialog-actions>

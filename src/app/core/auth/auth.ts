@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap, map, catchError } from 'rxjs';
 import { of } from 'rxjs';
-import { TOKEN_ENDPOINT, USERINFO_ENDPOINT } from './auth.config';
+import { TOKEN_ENDPOINT, USERINFO_ENDPOINT, LOGOUT_ENDPOINT } from './auth.config';
 import { AuthToken, User } from '../models/user.model';
 
 @Injectable({
@@ -13,6 +13,7 @@ export class AuthService {
 
   // status signals
   private tokenSignal = signal<string | null>(this.getStoredToken());
+  private refreshTokenSignal = signal<string | null>(this.getStoredRefreshToken());
   private userSignal = signal<User | null>(null);
   private isLoadingSignal = signal(false);
   private errorSignal = signal<string | null>(null);
@@ -32,51 +33,92 @@ export class AuthService {
         this.loadUserInfo();
       }
     }, 0);
+    this.refreshTokenSignal.set(this.getStoredRefreshToken());
   }
 
   //login
-  login(username: string, password: string): Observable<boolean> {
-    this.isLoadingSignal.set(true);
-    this.errorSignal.set(null);
+login(username: string, password: string): Observable<boolean> {
+  this.isLoadingSignal.set(true);
+  this.errorSignal.set(null);
 
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/x-www-form-urlencoded',
-    });
+  const headers = new HttpHeaders({
+    'Content-Type': 'application/x-www-form-urlencoded',
+  });
 
-    const body = new URLSearchParams({
-      grant_type: 'password',
-      client_id: 'f1-frontend',
-      username: username,
-      password: password,
-      scope: 'openid profile email',
-    }).toString();
+  const body = new URLSearchParams({
+    grant_type: 'password',
+    client_id: 'f1-frontend',
+    username: username,
+    password: password,
+    scope: 'openid profile email',
+  }).toString();
 
-    return this.httpClient.post<AuthToken>(TOKEN_ENDPOINT, body, { headers }).pipe(
-      tap((response) => {
-        this.tokenSignal.set(response.access_token);
-        this.storeToken(response.access_token);
-        this.isLoggedInSubject.next(true);
-        this.loadUserInfo();
-        this.isLoadingSignal.set(false);
-      }),
-      map(() => true),
-      catchError((error) => {
-        const errorMsg = error.error?.error_description || 'Login fallito. Verifica credenziali.';
-        this.errorSignal.set(errorMsg);
-        this.isLoadingSignal.set(false);
-        console.error('Login error:', error);
-        return of(false);
-      })
-    );
-  }
+  return this.httpClient.post<AuthToken>(TOKEN_ENDPOINT, body, { headers }).pipe(
+    tap((response) => {
+      this.tokenSignal.set(response.access_token);
+      this.refreshTokenSignal.set(response.refresh_token || null);
+      this.storeToken(response.access_token);
+      this.storeRefreshToken(response.refresh_token || null);
+      this.isLoggedInSubject.next(true);
+      this.loadUserInfo();
+      this.isLoadingSignal.set(false);
+    }),
+    map(() => true),
+    catchError((error) => {
+      const errorMsg = error.error?.error_description || 'Login fallito. Verifica credenziali.';
+      this.errorSignal.set(errorMsg);
+      this.isLoadingSignal.set(false);
+      console.error('Login error:', error);
+      return of(false);
+    })
+  );
+}
 
   //Logout
   logout(): void {
-    this.tokenSignal.set(null);
-    this.userSignal.set(null);
-    this.removeStoredToken();
-    this.isLoggedInSubject.next(false);
-    this.errorSignal.set(null);
+    const refreshToken = this.refreshTokenSignal();
+    if (refreshToken) {
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/x-www-form-urlencoded',
+      });
+
+      const body = new URLSearchParams({
+        client_id: 'f1-frontend',
+        refresh_token: refreshToken,
+      }).toString();
+
+      this.httpClient.post(LOGOUT_ENDPOINT, body, { headers }).pipe(
+        tap(() => {
+          this.tokenSignal.set(null);
+          this.refreshTokenSignal.set(null);
+          this.userSignal.set(null);
+          this.removeStoredToken();
+          this.removeStoredRefreshToken();
+          this.isLoggedInSubject.next(false);
+          this.errorSignal.set(null);
+        }),
+        catchError((error) => {
+          console.error('Logout error:', error);
+          // Anche se fallisce, pulisci localmente
+          this.tokenSignal.set(null);
+          this.refreshTokenSignal.set(null);
+          this.userSignal.set(null);
+          this.removeStoredToken();
+          this.removeStoredRefreshToken();
+          this.isLoggedInSubject.next(false);
+          this.errorSignal.set(null);
+          return of(null);
+        })
+      ).subscribe();
+    } else {
+      this.tokenSignal.set(null);
+      this.refreshTokenSignal.set(null);
+      this.userSignal.set(null);
+      this.removeStoredToken();
+      this.removeStoredRefreshToken();
+      this.isLoggedInSubject.next(false);
+      this.errorSignal.set(null);
+    }
   }
 
 
@@ -119,13 +161,25 @@ export class AuthService {
 
   //roles
   getUserRoles(): string[] {
-    const user = this.userSignal();
-    return user?.realm_access?.roles ?? [];
+    const token = this.getToken();
+    if (token) {
+      try {
+        const decoded = this.decodeToken(token);
+        const roles = decoded?.realm_access?.roles ?? [];
+        return roles;
+      } catch (error) {
+        console.error('Error decoding token for roles:', error);
+        return [];
+      }
+    }
+    return [];
   }
 
   //specific role
   hasRole(role: string): boolean {
-    return this.getUserRoles().includes(role);
+    const roles = this.getUserRoles();
+    const has = roles.includes(role);
+    return has;
   }
 
   //token getter
@@ -149,13 +203,33 @@ export class AuthService {
     localStorage.setItem('auth_token', token);
   }
 
+  //refresh token save
+  private storeRefreshToken(refreshToken: string | null): void {
+  if (refreshToken) {
+    localStorage.setItem('refresh_token', refreshToken);
+  } else {
+    localStorage.removeItem('refresh_token');
+  }
+}
+  
+
   //token read
   private getStoredToken(): string | null {
     return localStorage.getItem('auth_token');
   }
 
+  //refresh token read
+  private getStoredRefreshToken(): string | null {
+    return localStorage.getItem('refresh_token');
+  }
+
   //token remove
   private removeStoredToken(): void {
     localStorage.removeItem('auth_token');
+  }
+
+  //refresh token remove
+  private removeStoredRefreshToken(): void {
+    localStorage.removeItem('refresh_token');
   }
 }

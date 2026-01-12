@@ -1,7 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth';
 
 @Component({
@@ -11,14 +11,24 @@ import { AuthService } from '../../../core/auth/auth';
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   username = signal('bob');
   password = signal('1234');
   isLoading = this.authService.isLoading;
   error = this.authService.error;
+  sessionError = signal<string | null>(null);
+
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['error'] === 'session_expired') {
+        this.sessionError.set('Sessione scaduta. Effettua nuovamente il login.');
+      }
+    });
+  }
 
   onLogin(): void {
     const username = this.username();
