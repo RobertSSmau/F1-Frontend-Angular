@@ -16,7 +16,6 @@ import { TeamResponse, CreateTeamRequest, UpdateTeamRequest } from '../../servic
 })
 export class TeamsDialog {
     teamsForm:FormGroup = new FormGroup({
-      //'id', 'name', 'country', 'championshipId'
       name: new FormControl('', [Validators.required]),
       country: new FormControl('', [Validators.required]),
       championshipId: new FormControl('', [Validators.required])
@@ -24,13 +23,13 @@ export class TeamsDialog {
 
     constructor(
       public dialogref: MatDialogRef<TeamsDialog>,
-      @Inject(MAT_DIALOG_DATA) public data: TeamResponse | null
+      @Inject(MAT_DIALOG_DATA) public data: UpdateTeamRequest | null
     ){
       if(data) {
         this.teamsForm.patchValue({
           name: data.name,
           country: data.country,
-          championshipId: data,
+          championshipId: data.championshipId,
         });
       }
 

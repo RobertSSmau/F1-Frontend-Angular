@@ -13,6 +13,7 @@ import { CreateChampionshipRequest, UpdateChampionshipRequest } from '../service
 import { ChampionshipDialog } from './championship-dialog/championship-dialog';
 import { AuthService } from '../core/auth/auth';
 import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-championships',
@@ -26,6 +27,7 @@ export class Championships implements OnInit {
   private dialog = inject(MatDialog);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private snackbar = inject(MatSnackBar);
   championships = signal<ChampionshipResponsePagedList | null>(null);
   displayedColumns: string[] = ['id', 'name', 'year', 'teamsCount', 'winnerName', 'actions'];
   dataSource = signal<ChampionshipResponse[]>([]);
@@ -64,6 +66,11 @@ export class Championships implements OnInit {
         this.championshipsService.apiChampionshipsPost(createRequest).subscribe(() => {
           this.loadChampionships(1, 10);
         });
+         this.snackbar.open('Championship created!', 'close', {
+            duration:3000,
+            horizontalPosition:'right',
+            verticalPosition:'top',
+          });
       }
     });
   }
@@ -84,6 +91,11 @@ export class Championships implements OnInit {
         this.championshipsService.apiChampionshipsIdPut(champ.id, updateRequest).subscribe(() => {
           this.loadChampionships(1, 10);
         });
+         this.snackbar.open('Championship edited!', 'close', {
+            duration:3000,
+            horizontalPosition:'right',
+            verticalPosition:'top',
+          });
       }
     });
   }
@@ -93,6 +105,11 @@ export class Championships implements OnInit {
       this.championshipsService.apiChampionshipsIdDelete(id).subscribe(() => {
         this.loadChampionships(1, 10);
       });
+       this.snackbar.open('Championship deleted!', 'close', {
+            duration:3000,
+            horizontalPosition:'right',
+            verticalPosition:'top',
+          });
     }
   }
 

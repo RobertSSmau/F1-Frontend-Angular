@@ -16,6 +16,14 @@
         <mat-error>Valid year is required</mat-error>
       }
     </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Championship ID</mat-label>
+      <input matInput formControlName="championshipId" required>
+      @if (teamsForm.get('championshipId')?.invalid && teamsForm.get('championshipId')?.touched) {
+        <mat-error>A valid ID is required</mat-error>
+      }
+    </mat-form-field>
     
   </form>
 </mat-dialog-content>

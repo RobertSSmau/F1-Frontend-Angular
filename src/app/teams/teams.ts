@@ -27,7 +27,7 @@ export class Teams implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   teams = signal<TeamResponsePagedList | null>(null);
-  displayColumns: string[] = ['id', 'name', 'country', 'championshipName' ,'actions'];
+  displayColumns: string[] = ['id', 'name', 'country', 'championshipName' , 'driversCount', 'actions'];
   dataSource = signal<TeamResponse[]>([]);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -47,23 +47,45 @@ export class Teams implements OnInit {
     this.loadTeams(event.pageIndex + 1, event.pageSize);
   }
 
-  /* openCreateForm(): void{
-    const dialogRef = this.dialog.open(DriversDialog,{
-      width: '400px',
-      dta:null
-    });
-    this.dialog.afterOpened().subscribe(result => {
-      if(result) {
-        const createRequest: CreateTeamRequest= {
-        
-        }
+  openCreateForm(): void {
+        const dialogRef = this.dialog.open(TeamsDialog, {
+          width: '400px',
+          data: null
+        });
+    
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            const createRequest: CreateTeamRequest = {
+              name: result.name,
+              country: result.country,
+              championshipId: result.championshipId,
+            };
+            this.teamsService.apiTeamsPost(createRequest).subscribe(() => {
+              this.loadTeams(1, 10);
+            });
+          }
+        });
       }
-    })
-  } */
-
-    /* openEditForm(teams: TeamResponse): void{
-
-    } */
+  
+    openEditForm(team: TeamResponse): void {
+        const dialogRef = this.dialog.open(TeamsDialog, {
+          width: '400px',
+          data: team
+        });
+  
+        dialogRef.afterClosed().subscribe(result => {
+          if (result && team.id) {
+            const updateRequest: UpdateTeamRequest = {
+              name: result.name,
+              country: result.country,
+              championshipId: result.championshipId,
+            };
+            this.teamsService.apiTeamsIdPut(team.id, updateRequest).subscribe(() => {
+              this.loadTeams(1, 10);
+            });
+          }
+        });
+      }
 
   onDelete(id: string): void {
     if (confirm('Are you sure you want to delete this team?')) {

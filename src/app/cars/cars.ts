@@ -13,16 +13,23 @@ import { CreateCarRequest, UpdateCarRequest } from '../services/openapi-client/m
 import { CarsDialog } from './cars-dialog/cars-dialog';
 import { AuthService } from '../core/auth/auth';
 import { Router } from '@angular/router';
+import {
+  MatSnackBar,
+} from '@angular/material/snack-bar';
+
 
 @Component({
   selector: 'app-cars',
-  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule],
+  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule,
+     MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule,
+    ],
   templateUrl: './cars.html',
   styleUrl: './cars.css',
 })
 export class Cars {
+  private snackbar = inject(MatSnackBar)
   private carservice= inject(CarsService);
-  //private dialog
+  private dialog = inject(MatDialog);
   private authService = inject(AuthService);
   private router = inject(Router);
   cars=signal<CarResponsePagedList | null>(null);
@@ -36,7 +43,8 @@ export class Cars {
   }
 
   loadCars(pageNumber:number, pageSize:number):void{
-    this.carservice.apiCarsGet(pageNumber, pageSize).subscribe(data=> {
+    
+    this.carservice.apiCarsGet(pageNumber, pageSize).subscribe(data=> {   
       this.cars.set(data);
       this.dataSource.set(data.items ?? []);
     });
@@ -46,11 +54,67 @@ export class Cars {
     this.loadCars(event.pageIndex + 1, event.pageSize);
   }
 
+ openCreateForm(): void {
+      const dialogRef = this.dialog.open(CarsDialog, {
+        width: '400px',
+        data: null
+      });
+  
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+
+          const createRequest: CreateCarRequest = {
+          model: result.model,
+          chassisNumber: result.chassisNumber,
+          engineManufacturer: result.engineManufacturer
+          };
+          this.carservice.apiCarsPost(createRequest).subscribe(() => {
+            this.loadCars(1, 10);
+          });
+          this.snackbar.open('Car created!', 'close', {
+            duration:3000,
+            horizontalPosition:'right',
+            verticalPosition:'top',
+          })
+        }
+      });
+    }
+
+  openEditForm(champ: CarResponse): void {
+      const dialogRef = this.dialog.open(CarsDialog, {
+        width: '400px',
+        data: champ
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result && champ.id) {
+          const updateRequest: UpdateCarRequest = {
+            model: result.model,
+            chassisNumber: result.chassisNumber,
+            engineManufacturer: result.engineManufacturer
+          };
+          this.carservice.apiCarsIdPut(champ.id, updateRequest).subscribe(() => {
+            this.loadCars(1, 10);
+          });
+          this.snackbar.open('Car edited!', 'close', {
+            duration:3000,
+            horizontalPosition:'right',
+            verticalPosition:'top',
+          });
+        }
+      });
+    }
+
   onDelete(id: string): void {
     if (confirm('Are you sure you want to delete this car?')) {
       this.carservice.apiCarsDriverDriverIdGet(id).subscribe(() => {
         this.loadCars(1, 10);
       });
+      this.snackbar.open('Car deleted!', 'close', {
+            duration:3000,
+            horizontalPosition:'right',
+            verticalPosition:'top',
+          });
     }
   }
   isAdmin(): boolean {

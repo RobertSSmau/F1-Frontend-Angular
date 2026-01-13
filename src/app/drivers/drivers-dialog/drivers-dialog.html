@@ -37,10 +37,10 @@
     </mat-form-field>
 
     <mat-form-field>
-      <mat-label>Team Name</mat-label>
-      <input matInput formControlName="teamName" required>
-      @if (driversForm.get('teamName')?.invalid && driversForm.get('teamName')?.touched) {
-        <mat-error>Team Name is required</mat-error>
+      <mat-label>Team ID</mat-label>
+      <input matInput formControlName="teamId" required>
+      @if (driversForm.get('teamId')?.invalid && driversForm.get('teamId')?.touched) {
+        <mat-error>Team ID is required</mat-error>
       }
     </mat-form-field>
 

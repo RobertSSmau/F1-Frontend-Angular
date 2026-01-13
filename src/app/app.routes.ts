@@ -5,10 +5,16 @@ import { Drivers } from './drivers/drivers';
 import { Teams } from './teams/teams';
 import { LoginComponent } from './features/auth/login/login';
 import { authGuard } from './core/auth/auth-guard';
+import { Cars } from './cars/cars';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: '', redirectTo: 'championships', pathMatch: 'full' },
+  {
+    path: 'cars',
+    component: Cars,
+    canActivate: [authGuard],
+  },
   {
     path: 'championships',
     component: Championships,

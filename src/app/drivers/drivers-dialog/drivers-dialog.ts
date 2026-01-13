@@ -33,7 +33,7 @@ export class DriversDialog {
         lastName: data.lastName,
         nationality: data.nationality,
         driverType: data.driverType,
-        teamName: data.teamId,
+        teamId: data.teamId,
         dateOfBirth: data.dateOfBirth ? this.formatDate(data.dateOfBirth) : '',
       });
     }
