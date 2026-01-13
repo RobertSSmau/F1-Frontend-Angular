@@ -10,7 +10,7 @@ export const authGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  // Token non valido - reindirizza a login
+  // token invalid, redirect to login
   router.navigate(['/login'], {
     queryParams: { returnUrl: state.url },
   });

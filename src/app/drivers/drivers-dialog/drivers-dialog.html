@@ -1,0 +1,62 @@
+<h2 mat-dialog-title>{{ data ? 'Edit Driver' : 'Create Driver' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="driversForm">
+    <mat-form-field>
+      <mat-label>First Name</mat-label>
+      <input matInput formControlName="firstName" required>
+      @if (driversForm.get('firstName')?.invalid && driversForm.get('firstName')?.touched) {
+        <mat-error>First Name is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Last Name</mat-label>
+      <input matInput formControlName="lastName" required>
+      @if (driversForm.get('lastName')?.invalid && driversForm.get('lastName')?.touched) {
+        <mat-error>Last Name is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Nationality</mat-label>
+      <input matInput formControlName="nationality" required>
+      @if (driversForm.get('nationality')?.invalid && driversForm.get('nationality')?.touched) {
+        <mat-error>Nationality is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Driver Type</mat-label>
+      <mat-select formControlName="driverType" required>
+        <mat-option value="Main">Main</mat-option>
+        <mat-option value="Reserve">Reserve</mat-option>
+      </mat-select>
+      @if (driversForm.get('driverType')?.invalid && driversForm.get('driverType')?.touched) {
+        <mat-error>Driver Type is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Team Name</mat-label>
+      <input matInput formControlName="teamName" required>
+      @if (driversForm.get('teamName')?.invalid && driversForm.get('teamName')?.touched) {
+        <mat-error>Team Name is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Date of Birth</mat-label>
+      <input matInput type="date" formControlName="dateOfBirth" required>
+      @if (driversForm.get('dateOfBirth')?.invalid && driversForm.get('dateOfBirth')?.touched) {
+        <mat-error>Valid date of birth is required</mat-error>
+      }
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSave()" [disabled]="driversForm.invalid">
+    {{ data ? 'Update' : 'Create' }}
+  </button>
+</mat-dialog-actions>

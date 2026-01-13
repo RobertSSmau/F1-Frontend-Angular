@@ -1,0 +1,60 @@
+<h2>Drivers</h2>
+
+<button mat-raised-button routerLink="/championships">Go to Championships</button>
+<button mat-raised-button color="accent" (click)="openCreateForm()" [disabled]="!isAdmin()">Add New Driver</button>
+<button mat-raised-button color="warn" (click)="logout()">Logout</button>
+
+@if (dataSource().length > 0) {
+  <mat-table [dataSource]="dataSource()" matSort>
+    <ng-container matColumnDef="id">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>ID</mat-header-cell>
+      <mat-cell *matCellDef="let driver">{{ driver.id }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="firstName">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>First Name</mat-header-cell>
+      <mat-cell *matCellDef="let driver">{{ driver.firstName }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="lastName">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Last Name</mat-header-cell>
+      <mat-cell *matCellDef="let driver">{{ driver.lastName }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="nationality">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Nationality</mat-header-cell>
+      <mat-cell *matCellDef="let driver">{{ driver.nationality }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="driverType">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Driver Type</mat-header-cell>
+      <mat-cell *matCellDef="let driver">{{ driver.driverType }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="teamName">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Team</mat-header-cell>
+      <mat-cell *matCellDef="let driver">{{ driver.teamName }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="dateOfBirth">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Date of Birth</mat-header-cell>
+      <mat-cell *matCellDef="let driver">{{ driver.dateOfBirth | date }}</mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+      <mat-cell *matCellDef="let driver">
+        <button mat-icon-button (click)="openEditForm(driver)" [disabled]="!isAdmin()">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="onDelete(driver.id!)" [disabled]="!isAdmin()">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+  </mat-table>
+  <mat-paginator
+    [length]="drivers()?.totalCount ?? 0"
+    [pageSize]="10"
+    [pageSizeOptions]="[5, 10, 20]"
+    (page)="onPageChange($event)"
+    showFirstLastButtons>
+  </mat-paginator>
+} @else {
+  <mat-spinner></mat-spinner>
+}

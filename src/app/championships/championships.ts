@@ -16,7 +16,7 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-championships',
-  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule],
+  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, ],
   templateUrl: './championships.html',
   styleUrl: './championships.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

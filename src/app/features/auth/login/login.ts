@@ -16,8 +16,8 @@ export class LoginComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  username = signal('bob');
-  password = signal('1234');
+  username = signal('');
+  password = signal('');
   isLoading = this.authService.isLoading;
   error = this.authService.error;
   sessionError = signal<string | null>(null);
@@ -25,7 +25,7 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       if (params['error'] === 'session_expired') {
-        this.sessionError.set('Sessione scaduta. Effettua nuovamente il login.');
+        this.sessionError.set('Sessione scaduta.');
       }
     });
   }
