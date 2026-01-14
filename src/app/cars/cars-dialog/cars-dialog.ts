@@ -35,4 +35,14 @@ export class CarsDialog {
       })
     }
   }
+
+  onCancel(): void {
+    this.dialogRef.close();
+  }
+
+  onSave(): void {
+    if (this.carsForm.valid) {
+      this.dialogRef.close(this.carsForm.value);
+    }
+  }
 }

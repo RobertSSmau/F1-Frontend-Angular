@@ -33,7 +33,7 @@ export class Cars {
   private authService = inject(AuthService);
   private router = inject(Router);
   cars=signal<CarResponsePagedList | null>(null);
-  displayColumns: string[] = ['id','model', 'chassisNumber', 'engineManufacturer', 'driverName' ];
+  displayColumns: string[] = ['id','model', 'chassisNumber', 'engineManufacturer', 'driverName', 'actions' ];
   dataSource = signal<CarResponse[]>([]);
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;

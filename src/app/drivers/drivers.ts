@@ -13,6 +13,7 @@ import { CreateDriverRequest, UpdateDriverRequest } from '../services/openapi-cl
 import { DriversDialog } from './drivers-dialog/drivers-dialog';
 import { AuthService } from '../core/auth/auth';
 import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-drivers',

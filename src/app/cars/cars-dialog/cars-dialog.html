@@ -1,1 +1,43 @@
-<p>cars-dialog works!</p>
+<h2 mat-dialog-title> {{data ? 'Edit Car' : 'Create Car'}}</h2>
+<mat-dialog-content>
+    <form [formGroup]="carsForm">
+        <mat-form-field>
+            <mat-label>Model</mat-label>
+            <input matInput formControlName="model" required>
+            @if (carsForm.get('model')?.invalid&&carsForm.get('model')?.touched){
+                <mat-error>Model is required</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Chassis number</mat-label>
+            <input matInput formControlName="chassisNumber" required>
+            @if (carsForm.get('chassisNumber')?.invalid&&carsForm.get('chessisNumber')?.touched){
+                <mat-error>Chassis number is required</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Engine Manufacturer</mat-label>
+            <input matInput formControlName="engineManufacturer" required>
+            @if (carsForm.get('engineManufacturer')?.invalid&&carsForm.get('engineManufacturer')?.touched){
+                <mat-error>Engine Manufacturer is required</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Driver ID</mat-label>
+            <input matInput formControlName="driverId" required>
+            @if (carsForm.get('driverId')?.invalid&&carsForm.get('driverId')?.touched){
+            <mat-error>Driver ID is required</mat-error>
+            }
+        </mat-form-field>
+    </form>
+
+    <mat-dialog-actions>
+        <button mat-button (click)="onCancel()">Cancel</button>
+        <button mat-raised-button color="primary" (click)="onSave()" [disabled]="carsForm.invalid">
+            {{ data ? 'Update' : 'Create' }}
+        </button>
+    </mat-dialog-actions>
+</mat-dialog-content>

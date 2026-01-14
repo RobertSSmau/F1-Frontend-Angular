@@ -1,55 +1,15 @@
-<div style="max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ccc;">
-  <h2>Login F1 Management</h2>
-
-  @if (error()) {
-    <div style="color: red; margin-bottom: 10px; padding: 10px; background: #ffe6e6;">
-      {{ error() }}
-    </div>
-  }
+<div style="max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; text-align: center;">
+  <h2>F1 Management</h2>
 
   @if (sessionError()) {
-    <div style="color: orange; margin-bottom: 10px; padding: 10px; background: #fff3cd;">
+    <div style="color: orange; margin-bottom: 20px; padding: 10px; background: #fff3cd;">
       {{ sessionError() }}
     </div>
   }
-
-  <form (ngSubmit)="onLogin()">
-    <div style="margin-bottom: 15px;">
-      <label for="username">Username:</label>
-      <input
-        id="username"
-        type="text"
-        [value]="username()"
-        (input)="username.set($event.target.value)"
-        [disabled]="isLoading()"
-        style="width: 100%; padding: 8px; margin-top: 5px;"
-      />
-    </div>
-
-    <div style="margin-bottom: 15px;">
-      <label for="password">Password:</label>
-      <input
-        id="password"
-        type="password"
-        [value]="password()"
-        (input)="password.set($event.target.value)"
-        [disabled]="isLoading()"
-        style="width: 100%; padding: 8px; margin-top: 5px;"
-      />
-    </div>
-
-    <div style="display: flex; gap: 10px;">
-      <button type="submit" [disabled]="isLoading()" style="flex: 1; padding: 10px;">
-        @if (isLoading()) {
-          Accesso in corso...
-        } @else {
-          Login
-        }
-      </button>
-      <button type="button" (click)="onReset()" [disabled]="isLoading()" style="flex: 1; padding: 10px;">
-        Reset
-      </button>
-    </div>
-  </form>
-
+<br>
+  <button 
+    (click)="onLogin()" 
+    style="padding: 12px 24px; font-size: 16px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px;">
+    Accedi
+  </button>
 </div>

@@ -4,7 +4,3 @@ export const KEYCLOAK_CONFIG = {
   clientId: 'f1-frontend',
   clientSecret: '',
 };
-
-export const TOKEN_ENDPOINT = `${KEYCLOAK_CONFIG.url}/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/token`;
-export const USERINFO_ENDPOINT = `${KEYCLOAK_CONFIG.url}/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/userinfo`;
-export const LOGOUT_ENDPOINT = `${KEYCLOAK_CONFIG.url}/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/logout`;
