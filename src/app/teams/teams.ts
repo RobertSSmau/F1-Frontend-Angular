@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectionStrategy, signal, inject, ViewChild }
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
-import { MatSortModule, MatSort } from '@angular/material/sort';
+import { MatSortModule } from '@angular/material/sort';
 import { TeamsService } from '../services/openapi-client/api/teams.service';
 import { TeamResponse, TeamResponsePagedList } from '../services/openapi-client/model/models';
 import {MatButtonModule} from '@angular/material/button';
@@ -13,10 +13,13 @@ import { CreateTeamRequest, UpdateTeamRequest } from '../services/openapi-client
 import { TeamsDialog } from './teams-dialog/teams-dialog';
 import { AuthService } from '../core/auth/auth';
 import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-teams',
-  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule],
+  imports: [ RouterLink, CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule],
   templateUrl: './teams.html',
   styleUrl: './teams.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,22 +32,42 @@ export class Teams implements OnInit {
   teams = signal<TeamResponsePagedList | null>(null);
   displayColumns: string[] = ['id', 'name', 'country', 'championshipName' , 'driversCount', 'actions'];
   dataSource = signal<TeamResponse[]>([]);
+  currentSortBy: string | null = null;
+  currentSortOrder: string = 'asc';
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit(): void {
-    this.loadTeams(1,10);
+    this.loadTeams(1,10, null, 'asc');
   }
 
-  loadTeams(pageNumber: number, pageSize: number): void {
-    this.teamsService.apiTeamsGet(pageNumber, pageSize).subscribe(data => {
+  onSortChange(sortBy: string): void {
+    this.currentSortBy = sortBy;
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+    }
+    this.loadTeams(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
+  }
+
+  onSortOrderChange(sortOrder: string): void {
+    this.currentSortOrder = sortOrder;
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+    }
+    this.loadTeams(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
+  }
+
+  loadTeams(pageNumber: number, pageSize: number, sortBy?: string | null, sortOrder?: string): void {
+    const finalSortBy = sortBy !== undefined ? sortBy : this.currentSortBy;
+    const finalSortOrder = sortOrder !== undefined ? sortOrder : this.currentSortOrder;
+    
+    this.teamsService.apiTeamsGet(pageNumber, pageSize, undefined, finalSortBy || undefined, finalSortOrder).subscribe(data => {
       this.teams.set(data);
       this.dataSource.set(data.items ?? []);
     });
   }
 
   onPageChange(event: any):void{
-    this.loadTeams(event.pageIndex + 1, event.pageSize);
+    this.loadTeams(event.pageIndex + 1, event.pageSize, this.currentSortBy, this.currentSortOrder);
   }
 
   openCreateForm(): void {

@@ -4,26 +4,45 @@
 <button mat-raised-button color="accent" (click)="openCreateForm()" [disabled]="!isAdmin()">Add New Championship</button>
 <button mat-raised-button color="warn" (click)="logout()">Logout</button>
 
+<div style="margin: 20px 0; display: flex; gap: 20px;">
+  <mat-form-field>
+    <mat-label>Sort By</mat-label>
+    <mat-select [(value)]="currentSortBy" (selectionChange)="onSortChange($event.value)">
+      <mat-option [value]="null">None</mat-option>
+      <mat-option value="name">Name</mat-option>
+      <mat-option value="year">Year</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Order</mat-label>
+    <mat-select [(value)]="currentSortOrder" (selectionChange)="onSortOrderChange($event.value)">
+      <mat-option value="asc">Ascending</mat-option>
+      <mat-option value="desc">Descending</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
 @if (dataSource().length > 0) {
-  <mat-table [dataSource]="dataSource()" matSort>
+  <mat-table [dataSource]="dataSource()">
     <ng-container matColumnDef="id">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>ID</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>ID</mat-header-cell>
       <mat-cell *matCellDef="let champ">{{ champ.id }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="name">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Name</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
       <mat-cell *matCellDef="let champ">{{ champ.name }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="year">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Year</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Year</mat-header-cell>
       <mat-cell *matCellDef="let champ">{{ champ.year }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="teamsCount">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Teams Count</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Teams Count</mat-header-cell>
       <mat-cell *matCellDef="let champ">{{ champ.teamsCount }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="winnerName">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Champion</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Champion</mat-header-cell>
       <mat-cell *matCellDef="let champ">{{ champ.winnerName }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="actions">

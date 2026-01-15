@@ -4,26 +4,45 @@
 <button mat-raised-button color="accent" (click)="openCreateForm()" [disabled]="!isAdmin()">Add New Team</button>
 <button mat-raised-button color="warn" (click)="logout()">Logout</button>
 
+<div style="margin: 20px 0; display: flex; gap: 20px;">
+  <mat-form-field>
+    <mat-label>Sort By</mat-label>
+    <mat-select [(value)]="currentSortBy" (selectionChange)="onSortChange($event.value)">
+      <mat-option [value]="null">None</mat-option>
+      <mat-option value="name">Name</mat-option>
+      <mat-option value="country">Country</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Order</mat-label>
+    <mat-select [(value)]="currentSortOrder" (selectionChange)="onSortOrderChange($event.value)">
+      <mat-option value="asc">Ascending</mat-option>
+      <mat-option value="desc">Descending</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
 @if (dataSource().length > 0) {
-  <mat-table [dataSource]="dataSource()" matSort>
+  <mat-table [dataSource]="dataSource()">
     <ng-container matColumnDef="id">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>ID</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>ID</mat-header-cell>
       <mat-cell *matCellDef="let teams">{{ teams.id }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="name">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Name</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
       <mat-cell *matCellDef="let teams">{{ teams.name }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="country">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Year</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Country</mat-header-cell>
       <mat-cell *matCellDef="let teams">{{ teams.country }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="championshipName">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Championship</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Championship</mat-header-cell>
       <mat-cell *matCellDef="let teams">{{ teams.championshipName }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="driversCount">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Drivers</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Drivers</mat-header-cell>
       <mat-cell *matCellDef="let teams">{{ teams.driversCount }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="actions">

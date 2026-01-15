@@ -4,34 +4,54 @@
 <button mat-raised-button color="accent" (click)="openCreateForm()" [disabled]="!isAdmin()">Add New Driver</button>
 <button mat-raised-button color="warn" (click)="logout()">Logout</button>
 
+<div style="margin: 20px 0; display: flex; gap: 20px;">
+  <mat-form-field>
+    <mat-label>Sort By</mat-label>
+    <mat-select [(value)]="currentSortBy" (selectionChange)="onSortChange($event.value)">
+      <mat-option [value]="null">None</mat-option>
+      <mat-option value="firstname">First Name</mat-option>
+      <mat-option value="lastname">Last Name</mat-option>
+      <mat-option value="nationality">Nationality</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Order</mat-label>
+    <mat-select [(value)]="currentSortOrder" (selectionChange)="onSortOrderChange($event.value)">
+      <mat-option value="asc">Ascending</mat-option>
+      <mat-option value="desc">Descending</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
 @if (dataSource().length > 0) {
-  <mat-table [dataSource]="dataSource()" matSort>
+  <mat-table [dataSource]="dataSource()">
     <ng-container matColumnDef="id">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>ID</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>ID</mat-header-cell>
       <mat-cell *matCellDef="let driver">{{ driver.id }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="firstName">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>First Name</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>First Name</mat-header-cell>
       <mat-cell *matCellDef="let driver">{{ driver.firstName }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="lastName">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Last Name</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Last Name</mat-header-cell>
       <mat-cell *matCellDef="let driver">{{ driver.lastName }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="nationality">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Nationality</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Nationality</mat-header-cell>
       <mat-cell *matCellDef="let driver">{{ driver.nationality }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="driverType">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Driver Type</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Driver Type</mat-header-cell>
       <mat-cell *matCellDef="let driver">{{ driver.driverType }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="teamName">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Team</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Team</mat-header-cell>
       <mat-cell *matCellDef="let driver">{{ driver.teamName }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="dateOfBirth">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Date of Birth</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Date of Birth</mat-header-cell>
       <mat-cell *matCellDef="let driver">{{ driver.dateOfBirth | date }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="actions">

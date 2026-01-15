@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectionStrategy, signal, inject, ViewChild }
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
-import { MatSortModule, MatSort } from '@angular/material/sort';
+import { MatSortModule } from '@angular/material/sort';
 import { CarsService} from '../services/openapi-client/api/cars.service';
 import { CarResponse, CarResponsePagedList } from '../services/openapi-client/model/models';
 import {MatButtonModule} from '@angular/material/button';
@@ -16,17 +16,19 @@ import { Router } from '@angular/router';
 import {
   MatSnackBar,
 } from '@angular/material/snack-bar';
-
+import { RouterLink } from '@angular/router';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-cars',
-  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule,
-     MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule,
+  imports: [ RouterLink, CommonModule, MatTableModule, MatPaginatorModule, MatSortModule,
+     MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule
     ],
   templateUrl: './cars.html',
   styleUrl: './cars.css',
 })
-export class Cars {
+export class Cars implements OnInit {
   private snackbar = inject(MatSnackBar)
   private carservice= inject(CarsService);
   private dialog = inject(MatDialog);
@@ -35,23 +37,42 @@ export class Cars {
   cars=signal<CarResponsePagedList | null>(null);
   displayColumns: string[] = ['id','model', 'chassisNumber', 'engineManufacturer', 'driverName', 'actions' ];
   dataSource = signal<CarResponse[]>([]);
+  currentSortBy: string | null = null;
+  currentSortOrder: string = 'asc';
     @ViewChild(MatPaginator) paginator!: MatPaginator;
-    @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit(): void {
-    this.loadCars(1,10);
+    this.loadCars(1,10, null, 'asc');
   }
 
-  loadCars(pageNumber:number, pageSize:number):void{
+  onSortChange(sortBy: string): void {
+    this.currentSortBy = sortBy;
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+    }
+    this.loadCars(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
+  }
+
+  onSortOrderChange(sortOrder: string): void {
+    this.currentSortOrder = sortOrder;
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+    }
+    this.loadCars(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
+  }
+
+  loadCars(pageNumber:number, pageSize:number, sortBy?: string | null, sortOrder?: string):void{
+    const finalSortBy = sortBy !== undefined ? sortBy : this.currentSortBy;
+    const finalSortOrder = sortOrder !== undefined ? sortOrder : this.currentSortOrder;
     
-    this.carservice.apiCarsGet(pageNumber, pageSize).subscribe(data=> {   
+    this.carservice.apiCarsGet(pageNumber, pageSize, undefined, finalSortBy || undefined, finalSortOrder).subscribe(data=> {   
       this.cars.set(data);
       this.dataSource.set(data.items ?? []);
     });
   }
 
   onPageChange(event: any):void{
-    this.loadCars(event.pageIndex + 1, event.pageSize);
+    this.loadCars(event.pageIndex + 1, event.pageSize, this.currentSortBy, this.currentSortOrder);
   }
 
  openCreateForm(): void {
@@ -69,7 +90,7 @@ export class Cars {
           engineManufacturer: result.engineManufacturer
           };
           this.carservice.apiCarsPost(createRequest).subscribe(() => {
-            this.loadCars(1, 10);
+            this.loadCars(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
           });
           this.snackbar.open('Car created!', 'close', {
             duration:3000,
@@ -94,7 +115,7 @@ export class Cars {
             engineManufacturer: result.engineManufacturer
           };
           this.carservice.apiCarsIdPut(champ.id, updateRequest).subscribe(() => {
-            this.loadCars(1, 10);
+            this.loadCars(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
           });
           this.snackbar.open('Car edited!', 'close', {
             duration:3000,
@@ -108,7 +129,7 @@ export class Cars {
   onDelete(id: string): void {
     if (confirm('Are you sure you want to delete this car?')) {
       this.carservice.apiCarsDriverDriverIdGet(id).subscribe(() => {
-        this.loadCars(1, 10);
+        this.loadCars(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
       });
       this.snackbar.open('Car deleted!', 'close', {
             duration:3000,

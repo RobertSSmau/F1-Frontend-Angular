@@ -1,29 +1,48 @@
 <h2>Cars</h2>
 
 <button mat-raised-button routerLink="/drivers">Go to Drivers</button>
-<button mat-raised-button color="accent" (click)="openCreateForm()" [disabled]="!isAdmin()">Add New Championship</button>
+<button mat-raised-button color="accent" (click)="openCreateForm()" [disabled]="!isAdmin()">Add New Car</button>
 <button mat-raised-button color="warn" (click)="logout()">Logout</button>
 
+<div style="margin: 20px 0; display: flex; gap: 20px;">
+  <mat-form-field>
+    <mat-label>Sort By</mat-label>
+    <mat-select [(value)]="currentSortBy" (selectionChange)="onSortChange($event.value)">
+      <mat-option [value]="null">None</mat-option>
+      <mat-option value="model">Model</mat-option>
+      <mat-option value="enginemanufacturer">Engine Manufacturer</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Order</mat-label>
+    <mat-select [(value)]="currentSortOrder" (selectionChange)="onSortOrderChange($event.value)">
+      <mat-option value="asc">Ascending</mat-option>
+      <mat-option value="desc">Descending</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
 @if (dataSource().length > 0) {
-  <mat-table [dataSource]="dataSource()" matSort>
+  <mat-table [dataSource]="dataSource()">
     <ng-container matColumnDef="id">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>ID</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>ID</mat-header-cell>
       <mat-cell *matCellDef="let car">{{ car.id }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="model">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Model</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Model</mat-header-cell>
       <mat-cell *matCellDef="let car">{{ car.model }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="chassisNumber">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Chassis Number</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Chassis Number</mat-header-cell>
       <mat-cell *matCellDef="let car">{{ car.chassisNumber }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="engineManufacturer">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Engine Manufacturer</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Engine Manufacturer</mat-header-cell>
       <mat-cell *matCellDef="let car">{{ car.engineManufacturer }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="driverName">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Driver</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Driver</mat-header-cell>
       <mat-cell *matCellDef="let car">{{ car.driverName }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="actions">

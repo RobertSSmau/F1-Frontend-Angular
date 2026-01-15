@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectionStrategy, signal, inject, ViewChild }
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
-import { MatSortModule, MatSort } from '@angular/material/sort';
+import { MatSortModule } from '@angular/material/sort';
 import { DriversService } from '../services/openapi-client/api/drivers.service';
 import { DriverResponse, DriverResponsePagedList } from '../services/openapi-client/model/models';
 import {MatButtonModule} from '@angular/material/button';
@@ -14,10 +14,12 @@ import { DriversDialog } from './drivers-dialog/drivers-dialog';
 import { AuthService } from '../core/auth/auth';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
+import { RouterLink } from '@angular/router';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
 @Component({
   selector: 'app-drivers',
-  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule],
+  imports: [ RouterLink, CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule],
   templateUrl: './drivers.html',
   styleUrl: './drivers.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,26 +29,47 @@ export class Drivers implements OnInit {
   private dialog = inject(MatDialog);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private snackbar = inject(MatSnackBar);
   drivers = signal<DriverResponsePagedList | null>(null);
   displayedColumns: string[] = ['id', 'firstName', 'lastName', 'nationality', 'driverType', 'teamName', 'dateOfBirth', 'actions'];
   dataSource = signal<DriverResponse[]>([]);
+  currentSortBy: string | null = null;
+  currentSortOrder: string = 'asc';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit(): void {
-    this.loadDrivers(1, 10);
+    this.loadDrivers(1, 10, null, 'asc');
   }
 
-  loadDrivers(pageNumber: number, pageSize: number): void {
-    this.driversService.apiDriversGet(pageNumber, pageSize).subscribe(data => {
+  onSortChange(sortBy: string): void {
+    this.currentSortBy = sortBy;
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+    }
+    this.loadDrivers(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
+  }
+
+  onSortOrderChange(sortOrder: string): void {
+    this.currentSortOrder = sortOrder;
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+    }
+    this.loadDrivers(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
+  }
+
+  loadDrivers(pageNumber: number, pageSize: number, sortBy?: string | null, sortOrder?: string): void {
+    const finalSortBy = sortBy !== undefined ? sortBy : this.currentSortBy;
+    const finalSortOrder = sortOrder !== undefined ? sortOrder : this.currentSortOrder;
+    
+    this.driversService.apiDriversGet(pageNumber, pageSize, undefined, finalSortBy || undefined, finalSortOrder).subscribe(data => {
       this.drivers.set(data);
       this.dataSource.set(data.items ?? []);
     });
   }
 
   onPageChange(event: any):void{
-    this.loadDrivers(event.pageIndex +1, event.pageSize);
+    this.loadDrivers(event.pageIndex + 1, event.pageSize, this.currentSortBy, this.currentSortOrder);
   }
 
   openCreateForm(): void {
@@ -66,9 +89,14 @@ export class Drivers implements OnInit {
             teamId: result.teamId
           };
           this.driversService.apiDriversPost(createRequest).subscribe(() => {
-            this.loadDrivers(1, 10);
+            this.loadDrivers(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
           });
         }
+      });
+      this.snackbar.open("Driver creation successful!", 'Close', {
+        duration: 3000,
+        horizontalPosition:'right',
+        verticalPosition:'top',
       });
     }
 
@@ -89,16 +117,26 @@ export class Drivers implements OnInit {
             teamId: result.teamId
           };
           this.driversService.apiDriversIdPut(champ.id, updateRequest).subscribe(() => {
-            this.loadDrivers(1, 10);
+            this.loadDrivers(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
           });
         }
+      });
+      this.snackbar.open("Driver edit successful!", 'Close', {
+        duration: 3000,
+        horizontalPosition:'right',
+        verticalPosition:'top',
       });
     }
 
   onDelete(id: string): void {
     if (confirm('Are you sure you want to delete this driver?')) {
       this.driversService.apiDriversIdDelete(id).subscribe(() => {
-        this.loadDrivers(1, 10);
+        this.loadDrivers(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
+      });
+      this.snackbar.open("Driver deletion successful!", 'Close', {
+        duration: 3000,
+        horizontalPosition:'right',
+        verticalPosition:'top',
       });
     }
   }

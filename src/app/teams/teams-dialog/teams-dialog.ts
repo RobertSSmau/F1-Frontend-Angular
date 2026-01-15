@@ -37,13 +37,13 @@ export class TeamsDialog {
 
     onCancel(): void {
     this.dialogref.close();
-  }
+    }
 
   onSave(): void {
     if (this.teamsForm.valid) {
       this.dialogref.close(this.teamsForm.value);
     }
-  }
+   }
     
     
 
