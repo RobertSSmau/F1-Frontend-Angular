@@ -20,7 +20,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-championships',
-  imports: [RouterLink, CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule ],
+  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule ],
   templateUrl: './championships.html',
   styleUrl: './championships.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,7 +29,6 @@ export class Championships implements OnInit {
   private championshipsService = inject(ChampionshipsService);
   private dialog = inject(MatDialog);
   private authService = inject(AuthService);
-  private router = inject(Router);
   private snackbar = inject(MatSnackBar);
   championships = signal<ChampionshipResponsePagedList | null>(null);
   displayedColumns: string[] = ['id', 'name', 'year', 'teamsCount', 'winnerName', 'actions'];
@@ -139,10 +138,5 @@ export class Championships implements OnInit {
   isAdmin(): boolean {
     const admin = this.authService.hasRole('Admin');
     return admin;
-  }
-
-  logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
   }
 }

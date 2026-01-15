@@ -118,6 +118,10 @@ export class AuthService {
     
   }
 
+  getUserInfo(): User | null {
+    return this.userSignal();
+  }
+
   // Check if user is logged in
   isLoggedIn(): boolean {
     return this.oauthService.hasValidAccessToken();

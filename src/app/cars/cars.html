@@ -1,10 +1,7 @@
 <h2>Cars</h2>
 
-<button mat-raised-button routerLink="/drivers">Go to Drivers</button>
-<button mat-raised-button color="accent" (click)="openCreateForm()" [disabled]="!isAdmin()">Add New Car</button>
-<button mat-raised-button color="warn" (click)="logout()">Logout</button>
-
-<div style="margin: 20px 0; display: flex; gap: 20px;">
+<div style="margin: 20px 0; display: flex; gap: 20px; align-items: center;">
+  
   <mat-form-field>
     <mat-label>Sort By</mat-label>
     <mat-select [(value)]="currentSortBy" (selectionChange)="onSortChange($event.value)">
@@ -20,8 +17,12 @@
       <mat-option value="asc">Ascending</mat-option>
       <mat-option value="desc">Descending</mat-option>
     </mat-select>
+    
   </mat-form-field>
+    <button mat-raised-button color="accent" (click)="openCreateForm()" [disabled]="!isAdmin()" style="margin-left: auto;">Add New Car</button>
+  
 </div>
+
 
 @if (dataSource().length > 0) {
   <mat-table [dataSource]="dataSource()">

@@ -12,14 +12,12 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { CreateTeamRequest, UpdateTeamRequest } from '../services/openapi-client/model/models';
 import { TeamsDialog } from './teams-dialog/teams-dialog';
 import { AuthService } from '../core/auth/auth';
-import { Router } from '@angular/router';
-import { RouterLink } from '@angular/router';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-teams',
-  imports: [ RouterLink, CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule],
+  imports: [ CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule],
   templateUrl: './teams.html',
   styleUrl: './teams.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,7 +26,6 @@ export class Teams implements OnInit {
   private teamsService=inject(TeamsService);
   private dialog=inject(MatDialog);
   private authService = inject(AuthService);
-  private router = inject(Router);
   teams = signal<TeamResponsePagedList | null>(null);
   displayColumns: string[] = ['id', 'name', 'country', 'championshipName' , 'driversCount', 'actions'];
   dataSource = signal<TeamResponse[]>([]);
@@ -120,11 +117,6 @@ export class Teams implements OnInit {
   isAdmin(): boolean {
     const admin = this.authService.hasRole('Admin');
     return admin;
-  }
-
-  logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
   }
 
 }

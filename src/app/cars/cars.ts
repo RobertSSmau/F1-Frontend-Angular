@@ -12,17 +12,15 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { CreateCarRequest, UpdateCarRequest } from '../services/openapi-client/model/models';
 import { CarsDialog } from './cars-dialog/cars-dialog';
 import { AuthService } from '../core/auth/auth';
-import { Router } from '@angular/router';
 import {
   MatSnackBar,
 } from '@angular/material/snack-bar';
-import { RouterLink } from '@angular/router';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-cars',
-  imports: [ RouterLink, CommonModule, MatTableModule, MatPaginatorModule, MatSortModule,
+  imports: [ CommonModule, MatTableModule, MatPaginatorModule, MatSortModule,
      MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule
     ],
   templateUrl: './cars.html',
@@ -33,7 +31,6 @@ export class Cars implements OnInit {
   private carservice= inject(CarsService);
   private dialog = inject(MatDialog);
   private authService = inject(AuthService);
-  private router = inject(Router);
   cars=signal<CarResponsePagedList | null>(null);
   displayColumns: string[] = ['id','model', 'chassisNumber', 'engineManufacturer', 'driverName', 'actions' ];
   dataSource = signal<CarResponse[]>([]);
@@ -141,11 +138,6 @@ export class Cars implements OnInit {
   isAdmin(): boolean {
     const admin = this.authService.hasRole('Admin');
     return admin;
-  }
-
-  logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
   }
   
 }

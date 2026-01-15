@@ -1,1 +1,13 @@
-<p>body works!</p>
+<app-topbar (menuToggled)="toggleSidebar()"></app-topbar>
+
+<mat-sidenav-container class="app-container">
+  <mat-sidenav #sidenav mode="over" [opened]="sidebarOpened()" class="app-sidenav">
+    <app-sidebar></app-sidebar>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <div class="content-wrapper">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

@@ -1,0 +1,18 @@
+.app-container {
+  height: calc(100vh - 64px);
+}
+
+.app-sidenav {
+  width: 250px;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.content-wrapper {
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.mat-drawer-backdrop {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
