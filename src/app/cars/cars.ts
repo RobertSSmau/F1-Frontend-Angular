@@ -17,11 +17,13 @@ import {
 } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-cars',
   imports: [ CommonModule, MatTableModule, MatPaginatorModule, MatSortModule,
-     MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule
+     MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule, FormsModule, MatInputModule
     ],
   templateUrl: './cars.html',
   styleUrl: './cars.css',
@@ -36,6 +38,7 @@ export class Cars implements OnInit {
   dataSource = signal<CarResponse[]>([]);
   currentSortBy: string | null = null;
   currentSortOrder: string = 'asc';
+  searchTerm: string = '';
     @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   ngOnInit(): void {
@@ -58,11 +61,19 @@ export class Cars implements OnInit {
     this.loadCars(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
   }
 
+  onSearchChange(event: any): void {
+    this.searchTerm = event.target.value;
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+    }
+    this.loadCars(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
+  }
+
   loadCars(pageNumber:number, pageSize:number, sortBy?: string | null, sortOrder?: string):void{
     const finalSortBy = sortBy !== undefined ? sortBy : this.currentSortBy;
     const finalSortOrder = sortOrder !== undefined ? sortOrder : this.currentSortOrder;
     
-    this.carservice.apiCarsGet(pageNumber, pageSize, undefined, finalSortBy || undefined, finalSortOrder).subscribe(data=> {   
+    this.carservice.apiCarsGet(pageNumber, pageSize, this.searchTerm || undefined, finalSortBy || undefined, finalSortOrder).subscribe(data=> {   
       this.cars.set(data);
       this.dataSource.set(data.items ?? []);
     });

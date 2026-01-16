@@ -16,7 +16,7 @@ import { ChampionshipResponse } from '../../services/openapi-client/model/models
 export class ChampionshipDialog {
   championshipForm: FormGroup = new FormGroup({
     name: new FormControl('', [Validators.required]),
-    year: new FormControl('', [Validators.required, Validators.min(1900), Validators.max(new Date().getFullYear())]),
+    year: new FormControl('', [Validators.required, Validators.min(1900)]),
     winnerId: new FormControl('')
   });
 

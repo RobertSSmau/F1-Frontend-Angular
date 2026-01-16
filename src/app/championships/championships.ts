@@ -17,10 +17,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterLink } from '@angular/router';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-championships',
-  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule ],
+  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule, FormsModule, MatInputModule ],
   templateUrl: './championships.html',
   styleUrl: './championships.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,6 +37,7 @@ export class Championships implements OnInit {
   dataSource = signal<ChampionshipResponse[]>([]);
   currentSortBy: string | null = null;
   currentSortOrder: string = 'asc';
+  searchTerm: string = '';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -58,11 +61,19 @@ export class Championships implements OnInit {
     this.loadChampionships(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
   }
 
+  onSearchChange(event: any): void {
+    this.searchTerm = event.target.value;
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+    }
+    this.loadChampionships(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
+  }
+
   loadChampionships(pageNumber: number, pageSize: number, sortBy?: string | null, sortOrder?: string): void {
     const finalSortBy = sortBy !== undefined ? sortBy : this.currentSortBy;
     const finalSortOrder = sortOrder !== undefined ? sortOrder : this.currentSortOrder;
     
-    this.championshipsService.apiChampionshipsGet(pageNumber, pageSize, undefined, finalSortBy || undefined, finalSortOrder).subscribe(data => {
+    this.championshipsService.apiChampionshipsGet(pageNumber, pageSize, this.searchTerm || undefined, finalSortBy || undefined, finalSortOrder).subscribe(data => {
       this.championships.set(data);
       this.dataSource.set(data.items ?? []);
     });

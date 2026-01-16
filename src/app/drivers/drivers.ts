@@ -15,9 +15,11 @@ import { AuthService } from '../core/auth/auth';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
 @Component({
   selector: 'app-drivers',
-  imports: [ CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule],
+  imports: [ CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule, FormsModule, MatInputModule],
   templateUrl: './drivers.html',
   styleUrl: './drivers.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,6 +34,7 @@ export class Drivers implements OnInit {
   dataSource = signal<DriverResponse[]>([]);
   currentSortBy: string | null = null;
   currentSortOrder: string = 'asc';
+  searchTerm: string = '';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -55,11 +58,19 @@ export class Drivers implements OnInit {
     this.loadDrivers(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
   }
 
+  onSearchChange(event: any): void {
+    this.searchTerm = event.target.value;
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+    }
+    this.loadDrivers(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
+  }
+
   loadDrivers(pageNumber: number, pageSize: number, sortBy?: string | null, sortOrder?: string): void {
     const finalSortBy = sortBy !== undefined ? sortBy : this.currentSortBy;
     const finalSortOrder = sortOrder !== undefined ? sortOrder : this.currentSortOrder;
     
-    this.driversService.apiDriversGet(pageNumber, pageSize, undefined, finalSortBy || undefined, finalSortOrder).subscribe(data => {
+    this.driversService.apiDriversGet(pageNumber, pageSize, this.searchTerm || undefined, finalSortBy || undefined, finalSortOrder).subscribe(data => {
       this.drivers.set(data);
       this.dataSource.set(data.items ?? []);
     });
@@ -88,7 +99,7 @@ export class Drivers implements OnInit {
           this.driversService.apiDriversPost(createRequest).subscribe(() => {
             this.loadDrivers(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
           });
-         this.snackbar.open('Championship created!', 'close', {
+         this.snackbar.open('Driver created!', 'close', {
             duration:3000,
             horizontalPosition:'right',
             verticalPosition:'top',
@@ -116,7 +127,7 @@ export class Drivers implements OnInit {
           this.driversService.apiDriversIdPut(champ.id, updateRequest).subscribe(() => {
             this.loadDrivers(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
           });
-         this.snackbar.open('Championship edited!', 'close', {
+         this.snackbar.open('Driver edited!', 'close', {
             duration:3000,
             horizontalPosition:'right',
             verticalPosition:'top',

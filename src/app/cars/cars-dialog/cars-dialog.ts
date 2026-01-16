@@ -19,7 +19,7 @@ export class CarsDialog {
     model: new FormControl('', [Validators.required]),
     chassisNumber: new FormControl('', [Validators.required]),
     engineManufacturer: new FormControl('', [Validators.required]),
-    driverId: new FormControl('', [Validators.required]),
+    driverId: new FormControl(''),
   });
 
   constructor(

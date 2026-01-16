@@ -1,26 +1,30 @@
 <h2>Cars</h2>
 
-<div style="margin: 20px 0; display: flex; gap: 20px; align-items: center;">
-  
-  <mat-form-field>
-    <mat-label>Sort By</mat-label>
-    <mat-select [(value)]="currentSortBy" (selectionChange)="onSortChange($event.value)">
-      <mat-option [value]="null">None</mat-option>
-      <mat-option value="model">Model</mat-option>
-      <mat-option value="enginemanufacturer">Engine Manufacturer</mat-option>
-    </mat-select>
-  </mat-form-field>
+<div style="margin: 20px 0; display: flex; justify-content: space-between; align-items: center;">
+  <div style="display: flex; gap: 20px;">
+    <mat-form-field>
+      <mat-label>Search</mat-label>
+      <input matInput [(ngModel)]="searchTerm" (input)="onSearchChange($event)" placeholder="Search cars...">
+    </mat-form-field>
 
-  <mat-form-field>
-    <mat-label>Order</mat-label>
-    <mat-select [(value)]="currentSortOrder" (selectionChange)="onSortOrderChange($event.value)">
-      <mat-option value="asc">Ascending</mat-option>
-      <mat-option value="desc">Descending</mat-option>
-    </mat-select>
-    
-  </mat-form-field>
-    <button mat-raised-button color="accent" (click)="openCreateForm()" [disabled]="!isAdmin()" style="margin-left: auto;">Add New Car</button>
-  
+    <mat-form-field>
+      <mat-label>Sort By</mat-label>
+      <mat-select [(value)]="currentSortBy" (selectionChange)="onSortChange($event.value)">
+        <mat-option [value]="null">None</mat-option>
+        <mat-option value="model">Model</mat-option>
+        <mat-option value="enginemanufacturer">Engine Manufacturer</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Order</mat-label>
+      <mat-select [(value)]="currentSortOrder" (selectionChange)="onSortOrderChange($event.value)">
+        <mat-option value="asc">Ascending</mat-option>
+        <mat-option value="desc">Descending</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <button mat-raised-button color="accent" (click)="openCreateForm()" [disabled]="!isAdmin()">Add New Car</button>
 </div>
 
 

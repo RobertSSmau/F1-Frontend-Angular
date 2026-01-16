@@ -1,24 +1,30 @@
 <h2>Teams</h2>
 
-<div style="margin: 20px 0; display: flex; gap: 20px; align-items: center;">
-  <mat-form-field>
-    <mat-label>Sort By</mat-label>
-    <mat-select [(value)]="currentSortBy" (selectionChange)="onSortChange($event.value)">
-      <mat-option [value]="null">None</mat-option>
-      <mat-option value="name">Name</mat-option>
-      <mat-option value="country">Country</mat-option>
-    </mat-select>
-  </mat-form-field>
+<div style="margin: 20px 0; display: flex; justify-content: space-between; align-items: center;">
+  <div style="display: flex; gap: 20px;">
+    <mat-form-field>
+      <mat-label>Search</mat-label>
+      <input matInput [(ngModel)]="searchTerm" (input)="onSearchChange($event)" placeholder="Search teams...">
+    </mat-form-field>
 
-  <mat-form-field>
-    <mat-label>Order</mat-label>
-    <mat-select [(value)]="currentSortOrder" (selectionChange)="onSortOrderChange($event.value)">
-      <mat-option value="asc">Ascending</mat-option>
-      <mat-option value="desc">Descending</mat-option>
-    </mat-select>
-  </mat-form-field>
+    <mat-form-field>
+      <mat-label>Sort By</mat-label>
+      <mat-select [(value)]="currentSortBy" (selectionChange)="onSortChange($event.value)">
+        <mat-option [value]="null">None</mat-option>
+        <mat-option value="name">Name</mat-option>
+        <mat-option value="country">Country</mat-option>
+      </mat-select>
+    </mat-form-field>
 
-  <button mat-raised-button color="accent" (click)="openCreateForm()" [disabled]="!isAdmin()" style="margin-left: auto;">Add New Team</button>
+    <mat-form-field>
+      <mat-label>Order</mat-label>
+      <mat-select [(value)]="currentSortOrder" (selectionChange)="onSortOrderChange($event.value)">
+        <mat-option value="asc">Ascending</mat-option>
+        <mat-option value="desc">Descending</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <button mat-raised-button color="accent" (click)="openCreateForm()" [disabled]="!isAdmin()">Add New Team</button>
 </div>
 
 @if (dataSource().length > 0) {

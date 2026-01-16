@@ -14,10 +14,12 @@ import { TeamsDialog } from './teams-dialog/teams-dialog';
 import { AuthService } from '../core/auth/auth';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-teams',
-  imports: [ CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule],
+  imports: [ CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule, FormsModule, MatInputModule],
   templateUrl: './teams.html',
   styleUrl: './teams.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,6 +33,7 @@ export class Teams implements OnInit {
   dataSource = signal<TeamResponse[]>([]);
   currentSortBy: string | null = null;
   currentSortOrder: string = 'asc';
+  searchTerm: string = '';
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   ngOnInit(): void {
@@ -53,11 +56,19 @@ export class Teams implements OnInit {
     this.loadTeams(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
   }
 
+  onSearchChange(event: any): void {
+    this.searchTerm = event.target.value;
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+    }
+    this.loadTeams(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
+  }
+
   loadTeams(pageNumber: number, pageSize: number, sortBy?: string | null, sortOrder?: string): void {
     const finalSortBy = sortBy !== undefined ? sortBy : this.currentSortBy;
     const finalSortOrder = sortOrder !== undefined ? sortOrder : this.currentSortOrder;
     
-    this.teamsService.apiTeamsGet(pageNumber, pageSize, undefined, finalSortBy || undefined, finalSortOrder).subscribe(data => {
+    this.teamsService.apiTeamsGet(pageNumber, pageSize, this.searchTerm || undefined, finalSortBy || undefined, finalSortOrder).subscribe(data => {
       this.teams.set(data);
       this.dataSource.set(data.items ?? []);
     });
