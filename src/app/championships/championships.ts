@@ -22,7 +22,7 @@ import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-championships',
-  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule, FormsModule, MatInputModule ],
+  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule, FormsModule, MatInputModule],
   templateUrl: './championships.html',
   styleUrl: './championships.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,6 +32,7 @@ export class Championships implements OnInit {
   private dialog = inject(MatDialog);
   private authService = inject(AuthService);
   private snackbar = inject(MatSnackBar);
+  private router = inject(Router);
   championships = signal<ChampionshipResponsePagedList | null>(null);
   displayedColumns: string[] = ['id', 'name', 'year', 'teamsCount', 'winnerName', 'actions'];
   dataSource = signal<ChampionshipResponse[]>([]);
@@ -81,6 +82,18 @@ export class Championships implements OnInit {
 
   onPageChange(event: any): void {
     this.loadChampionships(event.pageIndex + 1, event.pageSize, this.currentSortBy, this.currentSortOrder);
+  }
+
+  onRowClick(champ: ChampionshipResponse): void {
+    if (champ.id) {
+      this.router.navigate(['/teams'], { 
+        queryParams: { 
+          championshipId: champ.id,
+          pageNumber: 1,
+          pageSize: 10
+        } 
+      });
+    }
   }
 
   openCreateForm(): void {

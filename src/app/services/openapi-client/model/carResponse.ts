@@ -15,5 +15,6 @@ export interface CarResponse {
     chassisNumber?: string | null;
     engineManufacturer?: string | null;
     driverName?: string | null;
+    driverId?: string;
 }
 

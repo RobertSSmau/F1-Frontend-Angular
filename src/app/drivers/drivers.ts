@@ -4,6 +4,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { DriversService } from '../services/openapi-client/api/drivers.service';
+import { CarsService } from '../services/openapi-client/api/cars.service';
 import { DriverResponse, DriverResponsePagedList } from '../services/openapi-client/model/models';
 import {MatButtonModule} from '@angular/material/button';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
@@ -12,6 +13,7 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { CreateDriverRequest, UpdateDriverRequest } from '../services/openapi-client/model/models';
 import { DriversDialog } from './drivers-dialog/drivers-dialog';
 import { AuthService } from '../core/auth/auth';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -26,8 +28,11 @@ import { MatInputModule } from '@angular/material/input';
 })
 export class Drivers implements OnInit {
   private driversService = inject(DriversService);
+  private carsService = inject(CarsService);
   private dialog = inject(MatDialog);
   private authService = inject(AuthService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private snackbar = inject(MatSnackBar);
   drivers = signal<DriverResponsePagedList | null>(null);
   displayedColumns: string[] = ['id', 'firstName', 'lastName', 'nationality', 'driverType', 'teamName', 'dateOfBirth', 'actions'];
@@ -35,11 +40,17 @@ export class Drivers implements OnInit {
   currentSortBy: string | null = null;
   currentSortOrder: string = 'asc';
   searchTerm: string = '';
+  teamId: string | null = null;
+  championshipId: string | null = null;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   ngOnInit(): void {
-    this.loadDrivers(1, 10, null, 'asc');
+    this.route.queryParams.subscribe(params => {
+      this.teamId = params['teamId'] || null;
+      this.championshipId = params['championshipId'] || null;
+      this.loadDrivers(1, 10, null, 'asc');
+    });
   }
 
   onSortChange(sortBy: string): void {
@@ -70,14 +81,58 @@ export class Drivers implements OnInit {
     const finalSortBy = sortBy !== undefined ? sortBy : this.currentSortBy;
     const finalSortOrder = sortOrder !== undefined ? sortOrder : this.currentSortOrder;
     
-    this.driversService.apiDriversGet(pageNumber, pageSize, this.searchTerm || undefined, finalSortBy || undefined, finalSortOrder).subscribe(data => {
-      this.drivers.set(data);
-      this.dataSource.set(data.items ?? []);
-    });
+    if (this.teamId) {
+      // Load drivers filtered by team
+      this.driversService.apiDriversTeamTeamIdGet(this.teamId, pageNumber, pageSize).subscribe(data => {
+        this.drivers.set(data);
+        this.dataSource.set(data.items ?? []);
+      });
+    } else {
+      // Load all drivers
+      this.driversService.apiDriversGet(pageNumber, pageSize, this.searchTerm || undefined, finalSortBy || undefined, finalSortOrder).subscribe(data => {
+        this.drivers.set(data);
+        this.dataSource.set(data.items ?? []);
+      });
+    }
   }
 
   onPageChange(event: any):void{
     this.loadDrivers(event.pageIndex + 1, event.pageSize, this.currentSortBy, this.currentSortOrder);
+  }
+
+  onRowClick(driver: DriverResponse): void {
+    if (driver.id && this.teamId && this.championshipId) {
+      // Navigate to car detail for this driver
+      this.carsService.apiCarsDriverDriverIdGet(driver.id).subscribe(
+        car => {
+          if (car && car.id) {
+            this.router.navigate(['/cars'], { 
+              queryParams: { 
+                driverId: driver.id,
+                teamId: this.teamId,
+                championshipId: this.championshipId,
+                carId: car.id,
+                pageNumber: 1,
+                pageSize: 10
+              } 
+            });
+          } else {
+            this.snackbar.open('No car associated with this driver', 'close', {
+              duration: 3000,
+              horizontalPosition: 'right',
+              verticalPosition: 'top',
+            });
+          }
+        },
+        error => {
+          this.snackbar.open('No car associated with this driver', 'close', {
+            duration: 3000,
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+          });
+        }
+      );
+    }
   }
 
   openCreateForm(): void {
@@ -98,11 +153,11 @@ export class Drivers implements OnInit {
           };
           this.driversService.apiDriversPost(createRequest).subscribe(() => {
             this.loadDrivers(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
-          });
-         this.snackbar.open('Driver created!', 'close', {
-            duration:3000,
-            horizontalPosition:'right',
-            verticalPosition:'top',
+            this.snackbar.open('Driver created!', 'close', {
+              duration:3000,
+              horizontalPosition:'right',
+              verticalPosition:'top',
+            });
           });
       }
     });
@@ -140,14 +195,15 @@ export class Drivers implements OnInit {
     if (confirm('Are you sure you want to delete this driver?')) {
       this.driversService.apiDriversIdDelete(id).subscribe(() => {
         this.loadDrivers(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
-      });
-      this.snackbar.open("Driver deletion successful!", 'Close', {
-        duration: 3000,
-        horizontalPosition:'right',
-        verticalPosition:'top',
+        this.snackbar.open('Driver deleted!', 'close', {
+          duration:3000,
+          horizontalPosition:'right',
+          verticalPosition:'top',
+        });
       });
     }
   }
+
   isAdmin(): boolean {
     const admin = this.authService.hasRole('Admin');
     return admin;

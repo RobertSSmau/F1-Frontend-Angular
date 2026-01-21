@@ -17,6 +17,7 @@ export interface DriverResponse {
     nationality?: string | null;
     dateOfBirth?: string;
     driverType?: DriverType;
+    teamId?: string;
     teamName?: string | null;
     hasCar?: boolean;
 }

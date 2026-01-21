@@ -12,10 +12,12 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { CreateTeamRequest, UpdateTeamRequest } from '../services/openapi-client/model/models';
 import { TeamsDialog } from './teams-dialog/teams-dialog';
 import { AuthService } from '../core/auth/auth';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-teams',
@@ -28,16 +30,23 @@ export class Teams implements OnInit {
   private teamsService=inject(TeamsService);
   private dialog=inject(MatDialog);
   private authService = inject(AuthService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private snackbar = inject(MatSnackBar);
   teams = signal<TeamResponsePagedList | null>(null);
   displayColumns: string[] = ['id', 'name', 'country', 'championshipName' , 'driversCount', 'actions'];
   dataSource = signal<TeamResponse[]>([]);
   currentSortBy: string | null = null;
   currentSortOrder: string = 'asc';
   searchTerm: string = '';
+  championshipId: string | null = null;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   ngOnInit(): void {
-    this.loadTeams(1,10, null, 'asc');
+    this.route.queryParams.subscribe(params => {
+      this.championshipId = params['championshipId'] || null;
+      this.loadTeams(1, 10, null, 'asc');
+    });
   }
 
   onSortChange(sortBy: string): void {
@@ -68,14 +77,36 @@ export class Teams implements OnInit {
     const finalSortBy = sortBy !== undefined ? sortBy : this.currentSortBy;
     const finalSortOrder = sortOrder !== undefined ? sortOrder : this.currentSortOrder;
     
-    this.teamsService.apiTeamsGet(pageNumber, pageSize, this.searchTerm || undefined, finalSortBy || undefined, finalSortOrder).subscribe(data => {
-      this.teams.set(data);
-      this.dataSource.set(data.items ?? []);
-    });
+    if (this.championshipId) {
+      // Load teams filtered by championship
+      this.teamsService.apiTeamsChampionshipChampionshipIdGet(this.championshipId, pageNumber, pageSize).subscribe(data => {
+        this.teams.set(data);
+        this.dataSource.set(data.items ?? []);
+      });
+    } else {
+      // Load all teams
+      this.teamsService.apiTeamsGet(pageNumber, pageSize, this.searchTerm || undefined, finalSortBy || undefined, finalSortOrder).subscribe(data => {
+        this.teams.set(data);
+        this.dataSource.set(data.items ?? []);
+      });
+    }
   }
 
   onPageChange(event: any):void{
     this.loadTeams(event.pageIndex + 1, event.pageSize, this.currentSortBy, this.currentSortOrder);
+  }
+
+  onRowClick(team: TeamResponse): void {
+    if (team.id && this.championshipId) {
+      this.router.navigate(['/drivers'], { 
+        queryParams: { 
+          teamId: team.id,
+          championshipId: this.championshipId,
+          pageNumber: 1,
+          pageSize: 10
+        } 
+      });
+    }
   }
 
   openCreateForm(): void {
@@ -93,6 +124,11 @@ export class Teams implements OnInit {
             };
             this.teamsService.apiTeamsPost(createRequest).subscribe(() => {
               this.loadTeams(1, 10);
+              this.snackbar.open('Team created!', 'close', {
+                duration:3000,
+                horizontalPosition:'right',
+                verticalPosition:'top',
+              });
             });
           }
         });
@@ -113,6 +149,11 @@ export class Teams implements OnInit {
             };
             this.teamsService.apiTeamsIdPut(team.id, updateRequest).subscribe(() => {
               this.loadTeams(1, 10);
+              this.snackbar.open('Team edited!', 'close', {
+                duration:3000,
+                horizontalPosition:'right',
+                verticalPosition:'top',
+              });
             });
           }
         });
@@ -122,6 +163,11 @@ export class Teams implements OnInit {
     if (confirm('Are you sure you want to delete this team?')) {
       this.teamsService.apiTeamsIdDelete(id).subscribe(() => {
         this.loadTeams(1, 10);
+        this.snackbar.open('Team deleted!', 'close', {
+          duration:3000,
+          horizontalPosition:'right',
+          verticalPosition:'top',
+        });
       });
     }
   }

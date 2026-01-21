@@ -12,6 +12,7 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { CreateCarRequest, UpdateCarRequest } from '../services/openapi-client/model/models';
 import { CarsDialog } from './cars-dialog/cars-dialog';
 import { AuthService } from '../core/auth/auth';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   MatSnackBar,
 } from '@angular/material/snack-bar';
@@ -33,16 +34,43 @@ export class Cars implements OnInit {
   private carservice= inject(CarsService);
   private dialog = inject(MatDialog);
   private authService = inject(AuthService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
   cars=signal<CarResponsePagedList | null>(null);
   displayColumns: string[] = ['id','model', 'chassisNumber', 'engineManufacturer', 'driverName', 'actions' ];
   dataSource = signal<CarResponse[]>([]);
   currentSortBy: string | null = null;
   currentSortOrder: string = 'asc';
   searchTerm: string = '';
-    @ViewChild(MatPaginator) paginator!: MatPaginator;
+  driverId: string | null = null;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   ngOnInit(): void {
-    this.loadCars(1,10, null, 'asc');
+    this.route.queryParams.subscribe(params => {
+      this.driverId = params['driverId'] || null;
+      if (this.driverId) {
+        // When coming from driver drill-down, show only the car for that driver
+        this.carservice.apiCarsDriverDriverIdGet(this.driverId).subscribe(car => {
+          if (car) {
+            const pagedList: CarResponsePagedList = {
+              items: [car],
+              page: 1,
+              pageSize: 1,
+              totalCount: 1,
+              hasNextPage: false,
+              hasPreviousPage: false
+            };
+            this.cars.set(pagedList);
+            this.dataSource.set([car]);
+          } else {
+            this.cars.set({ items: [], page: 1, pageSize: 0, totalCount: 0, hasNextPage: false, hasPreviousPage: false });
+            this.dataSource.set([]);
+          }
+        });
+      } else {
+        this.loadCars(1, 10, null, 'asc');
+      }
+    });
   }
 
   onSortChange(sortBy: string): void {

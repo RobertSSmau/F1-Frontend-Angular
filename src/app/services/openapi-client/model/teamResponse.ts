@@ -15,5 +15,6 @@ export interface TeamResponse {
     country?: string | null;
     championshipName?: string | null;
     driversCount?: number;
+    championshipId?: string;
 }
 

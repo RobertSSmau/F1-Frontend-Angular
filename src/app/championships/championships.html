@@ -51,7 +51,7 @@
     </ng-container>
     <ng-container matColumnDef="actions">
       <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
-      <mat-cell *matCellDef="let champ">
+      <mat-cell *matCellDef="let champ" (click)="$event.stopPropagation()">
         <button mat-icon-button (click)="openEditForm(champ)" [disabled]="!isAdmin()">
           <mat-icon>edit</mat-icon>
         </button>
@@ -61,7 +61,7 @@
       </mat-cell>
     </ng-container>
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;" (click)="onRowClick(row)" style="cursor: pointer;"></mat-row>
   </mat-table>
   <mat-paginator
     [length]="championships()?.totalCount ?? 0"
