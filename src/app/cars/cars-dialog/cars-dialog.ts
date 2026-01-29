@@ -24,14 +24,18 @@ export class CarsDialog {
 
   constructor(
     public dialogRef: MatDialogRef<CarsDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: UpdateCarRequest | null
+    @Inject(MAT_DIALOG_DATA) public data: any
   ){
-    if(data){
+    if (this.data.isEdit) {
       this.carsForm.patchValue({
-        model: data.model,
-        chassisNumber: data.chassisNumber,
-        engineManufacturer : data.engineManufacturer,
-        driverId: data.driverId,
+        model: this.data.car.model,
+        chassisNumber: this.data.car.chassisNumber,
+        engineManufacturer : this.data.car.engineManufacturer,
+        driverId: this.data.car.driverId,
+      })
+    } else {
+      this.carsForm.patchValue({
+        driverId: this.data.driverId,
       })
     }
   }

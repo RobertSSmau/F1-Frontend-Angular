@@ -103,11 +103,11 @@ export class Teams implements OnInit {
   }
 
   onRowClick(team: TeamResponse): void {
-    if (team.id && this.championshipId) {
+    if (team.id) {
       this.router.navigate(['/drivers'], { 
         queryParams: { 
           teamId: team.id,
-          championshipId: this.championshipId,
+          championshipId: this.championshipId || undefined,
           pageNumber: 1,
           pageSize: 10
         } 
@@ -118,7 +118,7 @@ export class Teams implements OnInit {
   openCreateForm(): void {
         const dialogRef = this.dialog.open(TeamsDialog, {
           width: '400px',
-          data: null
+          data: { isEdit: false, championshipId: this.championshipId }
         });
     
         dialogRef.afterClosed().subscribe(result => {
@@ -143,7 +143,7 @@ export class Teams implements OnInit {
     openEditForm(team: TeamResponse): void {
         const dialogRef = this.dialog.open(TeamsDialog, {
           width: '400px',
-          data: team
+          data: { isEdit: true, team: team }
         });
   
         dialogRef.afterClosed().subscribe(result => {

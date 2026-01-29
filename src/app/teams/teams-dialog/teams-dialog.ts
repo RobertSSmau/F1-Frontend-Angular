@@ -23,13 +23,17 @@ export class TeamsDialog {
 
     constructor(
       public dialogref: MatDialogRef<TeamsDialog>,
-      @Inject(MAT_DIALOG_DATA) public data: UpdateTeamRequest | null
+      @Inject(MAT_DIALOG_DATA) public data: any
     ){
-      if(data) {
+      if (this.data.isEdit) {
         this.teamsForm.patchValue({
-          name: data.name,
-          country: data.country,
-          championshipId: data.championshipId,
+          name: this.data.team.name,
+          country: this.data.team.country,
+          championshipId: this.data.team.championshipId,
+        });
+      } else {
+        this.teamsForm.patchValue({
+          championshipId: this.data.championshipId,
         });
       }
 

@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>{{ data ? 'Edit Driver' : 'Create Driver' }}</h2>
+<h2 mat-dialog-title>{{ data.isEdit ? 'Edit Driver' : 'Create Driver' }}</h2>
 <mat-dialog-content>
   <form [formGroup]="driversForm">
     <mat-form-field>
@@ -57,6 +57,6 @@
 <mat-dialog-actions>
   <button mat-button (click)="onCancel()">Cancel</button>
   <button mat-raised-button color="primary" (click)="onSave()" [disabled]="driversForm.invalid">
-    {{ data ? 'Update' : 'Create' }}
+    {{ data.isEdit ? 'Update' : 'Create' }}
   </button>
 </mat-dialog-actions>

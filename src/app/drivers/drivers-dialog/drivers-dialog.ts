@@ -25,16 +25,20 @@ export class DriversDialog {
 
   constructor(
     public dialogRef: MatDialogRef<DriversDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: UpdateDriverRequest | null
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    if (data) {
+    if (this.data.isEdit) {
       this.driversForm.patchValue({
-        firstName: data.firstName,
-        lastName: data.lastName,
-        nationality: data.nationality,
-        driverType: data.driverType,
-        teamId: data.teamId,
-        dateOfBirth: data.dateOfBirth ? this.formatDate(data.dateOfBirth) : '',
+        firstName: this.data.driver.firstName,
+        lastName: this.data.driver.lastName,
+        nationality: this.data.driver.nationality,
+        driverType: this.data.driver.driverType,
+        teamId: this.data.driver.teamId,
+        dateOfBirth: this.data.driver.dateOfBirth ? this.formatDate(this.data.driver.dateOfBirth) : '',
+      });
+    } else {
+      this.driversForm.patchValue({
+        teamId: this.data.teamId,
       });
     }
   }

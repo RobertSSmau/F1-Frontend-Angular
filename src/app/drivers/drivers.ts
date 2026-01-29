@@ -106,7 +106,7 @@ export class Drivers implements OnInit {
   }
 
   onRowClick(driver: DriverResponse): void {
-    if (driver.id && this.teamId && this.championshipId) {
+    if (driver.id) {
       // Navigate to car detail for this driver
       this.carsService.apiCarsDriverDriverIdGet(driver.id).subscribe(
         car => {
@@ -115,17 +115,11 @@ export class Drivers implements OnInit {
               queryParams: { 
                 driverId: driver.id,
                 teamId: this.teamId,
-                championshipId: this.championshipId,
+                championshipId: this.championshipId || undefined,
                 carId: car.id,
                 pageNumber: 1,
                 pageSize: 10
               } 
-            });
-          } else {
-            this.snackbar.open('No car associated with this driver', 'close', {
-              duration: 3000,
-              horizontalPosition: 'right',
-              verticalPosition: 'top',
             });
           }
         },
@@ -143,7 +137,7 @@ export class Drivers implements OnInit {
   openCreateForm(): void {
       const dialogRef = this.dialog.open(DriversDialog, {
         width: '400px',
-        data: null
+        data: { isEdit: false, teamId: this.teamId }
       });
   
       dialogRef.afterClosed().subscribe(result => {
@@ -171,7 +165,7 @@ export class Drivers implements OnInit {
   openEditForm(champ: DriverResponse): void {
       const dialogRef = this.dialog.open(DriversDialog, {
         width: '400px',
-        data: champ
+        data: { isEdit: true, driver: champ }
       });
 
       dialogRef.afterClosed().subscribe(result => {

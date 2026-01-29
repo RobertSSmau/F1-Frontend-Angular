@@ -118,7 +118,7 @@ export class Cars implements OnInit {
  openCreateForm(): void {
       const dialogRef = this.dialog.open(CarsDialog, {
         width: '400px',
-        data: null
+        data: { isEdit: false, driverId: this.driverId }
       });
   
       dialogRef.afterClosed().subscribe(result => {
@@ -127,7 +127,8 @@ export class Cars implements OnInit {
           const createRequest: CreateCarRequest = {
           model: result.model,
           chassisNumber: result.chassisNumber,
-          engineManufacturer: result.engineManufacturer
+          engineManufacturer: result.engineManufacturer,
+          driverId: result.driverId
           };
           this.carservice.apiCarsPost(createRequest).subscribe(() => {
             this.loadCars(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
@@ -144,7 +145,7 @@ export class Cars implements OnInit {
   openEditForm(champ: CarResponse): void {
       const dialogRef = this.dialog.open(CarsDialog, {
         width: '400px',
-        data: champ
+        data: { isEdit: true, car: champ }
       });
 
       dialogRef.afterClosed().subscribe(result => {
