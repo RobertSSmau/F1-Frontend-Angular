@@ -111,26 +111,18 @@ export class Drivers implements OnInit {
       this.carsService.apiCarsDriverDriverIdGet(driver.id).subscribe(
         car => {
           if (car && car.id) {
-            this.router.navigate(['/cars'], { 
-              queryParams: { 
+            this.router.navigate(['/cars'], {
+              queryParams: {
                 driverId: driver.id,
                 teamId: this.teamId,
                 championshipId: this.championshipId || undefined,
                 carId: car.id,
                 pageNumber: 1,
                 pageSize: 10
-              } 
+              }
             });
           }
-        },
-        error => {
-          this.snackbar.open('No car associated with this driver', 'close', {
-            duration: 3000,
-            horizontalPosition: 'right',
-            verticalPosition: 'top',
-          });
-        }
-      );
+        });
     }
   }
 
@@ -152,11 +144,6 @@ export class Drivers implements OnInit {
           };
           this.driversService.apiDriversPost(createRequest).subscribe(() => {
             this.loadDrivers(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
-            this.snackbar.open('Driver created!', 'close', {
-              duration:3000,
-              horizontalPosition:'right',
-              verticalPosition:'top',
-            });
           });
       }
     });
@@ -181,11 +168,6 @@ export class Drivers implements OnInit {
           this.driversService.apiDriversIdPut(champ.id, updateRequest).subscribe(() => {
             this.loadDrivers(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
           });
-         this.snackbar.open('Driver edited!', 'close', {
-            duration:3000,
-            horizontalPosition:'right',
-            verticalPosition:'top',
-          });
       }
     });
   }
@@ -194,11 +176,6 @@ export class Drivers implements OnInit {
     if (confirm('Are you sure you want to delete this driver?')) {
       this.driversService.apiDriversIdDelete(id).subscribe(() => {
         this.loadDrivers(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
-        this.snackbar.open('Driver deleted!', 'close', {
-          duration:3000,
-          horizontalPosition:'right',
-          verticalPosition:'top',
-        });
       });
     }
   }

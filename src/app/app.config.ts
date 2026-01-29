@@ -6,6 +6,7 @@ import { provideOAuthClient } from 'angular-oauth2-oidc';
 import { routes } from './app.routes';
 import { BASE_PATH } from './services/openapi-client/variables';
 import { authInterceptor } from './core/interceptors/auth-interceptor';
+import { feedbackInterceptor } from './core/interceptors/feedback.interceptor';
 import { AuthService } from './core/auth/auth';
 
 export function initializeOAuth(authService: AuthService): () => Promise<void> {
@@ -17,7 +18,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(
-      withInterceptors([authInterceptor])
+      withInterceptors([authInterceptor, feedbackInterceptor])
     ),
     provideOAuthClient(),
     {
