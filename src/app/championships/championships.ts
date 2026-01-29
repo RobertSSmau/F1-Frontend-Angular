@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectionStrategy, signal, inject, ViewChild }
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
+import { SearchBarComponent } from '../search-bar/search-bar';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { ChampionshipsService } from '../services/openapi-client/api/championships.service';
 import { ChampionshipResponsePagedList, ChampionshipResponse } from '../services/openapi-client/model/models';
@@ -22,7 +23,8 @@ import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-championships',
-  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule, FormsModule, MatInputModule],
+  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule,
+    SearchBarComponent, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule, FormsModule, MatInputModule],
   templateUrl: './championships.html',
   styleUrl: './championships.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,7 +40,8 @@ export class Championships implements OnInit {
   dataSource = signal<ChampionshipResponse[]>([]);
   currentSortBy: string | null = null;
   currentSortOrder: string = 'asc';
-  searchTerm: string = '';
+  searchTerm= signal<string>('');
+  
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -62,8 +65,8 @@ export class Championships implements OnInit {
     this.loadChampionships(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
   }
 
-  onSearchChange(event: any): void {
-    this.searchTerm = event.target.value;
+  onSearchChange(term:string): void {
+    this.searchTerm.set(term);
     if (this.paginator) {
       this.paginator.pageIndex = 0;
     }
@@ -74,7 +77,9 @@ export class Championships implements OnInit {
     const finalSortBy = sortBy !== undefined ? sortBy : this.currentSortBy;
     const finalSortOrder = sortOrder !== undefined ? sortOrder : this.currentSortOrder;
     
-    this.championshipsService.apiChampionshipsGet(pageNumber, pageSize, this.searchTerm || undefined, finalSortBy || undefined, finalSortOrder).subscribe(data => {
+    this.championshipsService.apiChampionshipsGet(pageNumber, pageSize, this.searchTerm() ||
+     undefined, finalSortBy ||
+      undefined, finalSortOrder).subscribe(data => {
       this.championships.set(data);
       this.dataSource.set(data.items ?? []);
     });

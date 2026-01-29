@@ -36,5 +36,9 @@ export class LoginComponent implements OnInit {
     // Redirect to Keycloak login
     this.authService.login();
   }
+
+  onRegister(): void {
+    this.authService.register();
+  }
 }
   

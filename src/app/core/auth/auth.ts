@@ -64,6 +64,14 @@ export class AuthService {
     this.oauthService.initCodeFlow();
   }
 
+  register(): void {
+    this.isLoadingSignal.set(true);
+    this.errorSignal.set(null);
+    // Redirect to Keycloak registration page
+    const registrationUrl = `${KEYCLOAK_CONFIG.url}/realms/${KEYCLOAK_CONFIG.realm}/protocol/openid-connect/registrations?client_id=${KEYCLOAK_CONFIG.clientId}&redirect_uri=${encodeURIComponent(window.location.origin)}&response_type=code&scope=${encodeURIComponent('openid profile email')}`;
+    window.location.href = registrationUrl;
+  }
+
   // logout
   logout(): void {
     this.oauthService.logOut();

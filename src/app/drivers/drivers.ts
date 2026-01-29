@@ -19,9 +19,12 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
+import { SearchBarComponent } from '../search-bar/search-bar';
 @Component({
   selector: 'app-drivers',
-  imports: [ CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule, FormsModule, MatInputModule],
+  imports: [ CommonModule, MatTableModule, MatPaginatorModule, MatSortModule,
+     MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule,
+      MatSelectModule, MatFormFieldModule, FormsModule, MatInputModule, SearchBarComponent],
   templateUrl: './drivers.html',
   styleUrl: './drivers.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,7 +42,7 @@ export class Drivers implements OnInit {
   dataSource = signal<DriverResponse[]>([]);
   currentSortBy: string | null = null;
   currentSortOrder: string = 'asc';
-  searchTerm: string = '';
+  searchTerm= signal<string>('');
   teamId: string | null = null;
   championshipId: string | null = null;
 
@@ -69,8 +72,8 @@ export class Drivers implements OnInit {
     this.loadDrivers(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
   }
 
-  onSearchChange(event: any): void {
-    this.searchTerm = event.target.value;
+  onSearchChange(term:string): void {
+    this.searchTerm.set(term);
     if (this.paginator) {
       this.paginator.pageIndex = 0;
     }
@@ -89,7 +92,9 @@ export class Drivers implements OnInit {
       });
     } else {
       // Load all drivers
-      this.driversService.apiDriversGet(pageNumber, pageSize, this.searchTerm || undefined, finalSortBy || undefined, finalSortOrder).subscribe(data => {
+      this.driversService.apiDriversGet(pageNumber, pageSize, this.searchTerm() ||
+       undefined, finalSortBy ||
+        undefined, finalSortOrder).subscribe(data => {
         this.drivers.set(data);
         this.dataSource.set(data.items ?? []);
       });

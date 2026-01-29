@@ -18,10 +18,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { SearchBarComponent } from '../search-bar/search-bar';
 
 @Component({
   selector: 'app-teams',
-  imports: [ CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDialogModule, MatSelectModule, MatFormFieldModule, FormsModule, MatInputModule],
+  imports: [ CommonModule, MatTableModule, MatPaginatorModule,
+     MatSortModule, MatProgressSpinnerModule, MatButtonModule,
+      MatIconModule, MatDialogModule, MatSelectModule,
+       MatFormFieldModule, FormsModule, MatInputModule, SearchBarComponent],
   templateUrl: './teams.html',
   styleUrl: './teams.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,7 +42,7 @@ export class Teams implements OnInit {
   dataSource = signal<TeamResponse[]>([]);
   currentSortBy: string | null = null;
   currentSortOrder: string = 'asc';
-  searchTerm: string = '';
+  searchTerm= signal<string>('');
   championshipId: string | null = null;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -65,8 +69,8 @@ export class Teams implements OnInit {
     this.loadTeams(1, this.paginator?.pageSize || 10, this.currentSortBy, this.currentSortOrder);
   }
 
-  onSearchChange(event: any): void {
-    this.searchTerm = event.target.value;
+  onSearchChange(term:string): void {
+    this.searchTerm.set(term);
     if (this.paginator) {
       this.paginator.pageIndex = 0;
     }
@@ -85,7 +89,9 @@ export class Teams implements OnInit {
       });
     } else {
       // Load all teams
-      this.teamsService.apiTeamsGet(pageNumber, pageSize, this.searchTerm || undefined, finalSortBy || undefined, finalSortOrder).subscribe(data => {
+      this.teamsService.apiTeamsGet(pageNumber, pageSize, this.searchTerm() ||
+       undefined, finalSortBy ||
+        undefined, finalSortOrder).subscribe(data => {
         this.teams.set(data);
         this.dataSource.set(data.items ?? []);
       });
